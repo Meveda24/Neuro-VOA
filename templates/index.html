@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sinaptik Optimizasyon Modeli | VOA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">Neuro-VOA: Sinaptik İletim Optimizasyonu</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Bu simülasyon, Girdap Optimizasyon Algoritması (Vortex Optimization Algorithm - VOA) kullanarak, hedeflenen nörotransmitter konsantrasyonunu sağlayacak en ideal salınım, geri alım ve yıkım parametrelerini otonom olarak hesaplar.</p>
+                        
+                        <form method="POST" class="mb-4">
+                            <div class="row align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Hedef Konsantrasyon Değeri (C)</label>
+                                    <input type="number" class="form-control" name="hedef" value="{{ sonuclar.hedef if sonuclar else 40 }}" step="1" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">VOA ile Optimize Et</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        {% if sonuclar %}
+                        <hr>
+                        <h5 class="mb-3">Optimizasyon Sonuçları</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white border rounded border-primary">
+                                    <small class="text-muted d-block">İdeal Salınım</small>
+                                    <strong>{{ sonuclar.salinim }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white border rounded border-success">
+                                    <small class="text-muted d-block">İdeal Geri Alım</small>
+                                    <strong>{{ sonuclar.geri_alim }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white border rounded border-warning">
+                                    <small class="text-muted d-block">İdeal Enzim Yıkımı</small>
+                                    <strong>{{ sonuclar.yikim }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white border rounded border-danger">
+                                    <small class="text-muted d-block">Hata Payı (Fitness)</small>
+                                    <strong>{{ sonuclar.hata }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <img src="data:image/png;base64,{{ sonuclar.grafik }}" class="img-fluid border rounded shadow-sm" alt="Simülasyon Grafiği">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
