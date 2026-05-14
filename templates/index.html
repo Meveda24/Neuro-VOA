@@ -2,68 +2,124 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Sinaptik Optimizasyon Modeli | VOA</title>
+    <title>Neuro-VOA Lab | Gelişmiş Ajan Kıyaslama</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
+    <div class="container mt-5 mb-5">
         <div class="row">
-            <div class="col-md-10 offset-md-1">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">
-                        <h4 class="mb-0">Neuro-VOA: Sinaptik İletim Optimizasyonu</h4>
+            <div class="col-md-12">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-dark text-white p-3">
+                        <h4 class="mb-0"><i class="bi bi-microscope"></i> Neuro-VOA: Ajan Kıyaslama Laboratuvarı</h4>
                     </div>
-                    <div class="card-body">
-                        <div class="alert alert-info border-start border-info border-4" role="alert">
+                    <div class="card-body p-4">
+                        <div class="alert alert-info border-start border-info border-4 mb-4" role="alert">
                             <strong><i class="bi bi-info-circle"></i> Sistem Kapsamı ve Kısıtlılıklar (In-Silico Disclaimer):</strong><br>
-                            <small>Bu simülasyon, in-vivo (canlı) veya bütünsel (whole-brain) bir kesin değer ölçüm aracı <b>değildir</b>. Hücresel ağların kaotik yapısı gereği, tekil sinaps değerleri diagnostik bir sonuç ifade etmez. 
-                            <br><b>Amaç:</b> VOA algoritması kullanılarak, farmakolojik ajanların (nörotrofik faktörler, inhibitörler vb.) hedeflenen referans dengeye ulaşmadaki <b>matematiksel etkinliklerini kıyaslamak</b> ve in-silico ön testlerini yapmaktır.</small>
+                            <small>Bu simülasyon, in-vivo (canlı) veya bütünsel (whole-brain) bir kesin değer ölçüm aracı <b>değildir</b>. 
+                            <b>Amaç:</b> Alpha-Synapse modeli ve VOA algoritması kullanılarak, farmakolojik ajanların hedeflenen referans dengeye ulaşmadaki <b>matematiksel etkinliklerini kıyaslamaktır</b>.</small>
                         </div>
                         
-                        <form method="POST" class="mb-4">
-                            <div class="row align-items-end">
+                        <form method="POST">
+                            <div class="row g-4">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Referans Denge İndeksi (Kıyaslama İçin Terapötik Hedef)</label>
-                                    <input type="number" class="form-control" name="hedef" value="{{ sonuclar.hedef if sonuclar else 40 }}" step="1" required>
+                                    <label class="form-label fw-bold">Fizyolojik Model (Preset)</label>
+                                    <select class="form-select" name="preset">
+                                        <option value="genel" {% if sonuclar and sonuclar.preset == 'genel' %}selected{% endif %}>Genel Sinaps Modeli</option>
+                                        <option value="noradrenalin_sican" {% if sonuclar and sonuclar.preset == 'noradrenalin_sican' %}selected{% endif %}>Noradrenalin (Sıçan Modeli)</option>
+                                        <option value="serotonin_sican" {% if sonuclar and sonuclar.preset == 'serotonin_sican' %}selected{% endif %}>Serotonin (Sıçan Modeli)</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">VOA ile Optimize Et</button>
+                                    <label class="form-label fw-bold">Referans Denge İndeksi</label>
+                                    <input type="number" class="form-control" name="hedef" value="{{ sonuclar.hedef if sonuclar else 40 }}" step="1" required>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"><i class="bi bi-lightning-charge"></i> Ajanları Yarıştır</button>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light border rounded">
+                                        <h6 class="fw-bold text-primary border-bottom pb-2">Ajan A (Müdahale Alanı)</h6>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_a" value="salinim" checked>
+                                            <label class="form-check-label">Salınım</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_a" value="reuptake" checked>
+                                            <label class="form-check-label">Geri Alım</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_a" value="yikim">
+                                            <label class="form-check-label">Yıkım</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light border rounded">
+                                        <h6 class="fw-bold text-success border-bottom pb-2">Ajan B (Müdahale Alanı)</h6>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_b" value="salinim">
+                                            <label class="form-check-label">Salınım</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_b" value="reuptake">
+                                            <label class="form-check-label">Geri Alım</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="mask_b" value="yikim" checked>
+                                            <label class="form-check-label">Yıkım</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
 
                         {% if sonuclar %}
-                        <hr>
-                        <h5 class="mb-3">Optimizasyon Sonuçları</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="p-3 bg-white border rounded border-primary">
-                                    <small class="text-muted d-block">Ajan: Presinaptik Salınım Oranı</small>
-                                    <strong>{{ sonuclar.salinim }}</strong>
+                        <hr class="my-4">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-4"><i class="bi bi-bar-chart-line"></i> Karşılaştırmalı Analiz Raporu</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered align-middle text-center">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Parametre</th>
+                                                <th class="text-primary">Ajan A (Optimize)</th>
+                                                <th class="text-success">Ajan B (Optimize)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold text-start">Presinaptik Salınım Oranı</td>
+                                                <td>{{ sonuclar.ajan_a.salinim }}</td>
+                                                <td>{{ sonuclar.ajan_b.salinim }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-start">Reuptake İnhibisyon Düzeyi</td>
+                                                <td>{{ sonuclar.ajan_a.reuptake }}</td>
+                                                <td>{{ sonuclar.ajan_b.reuptake }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-start">Enzimatik Aktivite (MAO/COMT)</td>
+                                                <td>{{ sonuclar.ajan_a.yikim }}</td>
+                                                <td>{{ sonuclar.ajan_b.yikim }}</td>
+                                            </tr>
+                                            <tr class="table-secondary">
+                                                <td class="fw-bold text-start">Sistematik Sapma Skoru (Fitness)</td>
+                                                <td class="text-primary fw-bold">{{ sonuclar.ajan_a.hata }}</td>
+                                                <td class="text-success fw-bold">{{ sonuclar.ajan_b.hata }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="mt-4 text-center">
+                                    <img src="data:image/png;base64,{{ sonuclar.grafik }}" class="img-fluid border rounded shadow-lg" alt="Kıyaslama Grafiği">
+                                    <p class="mt-3 text-muted small italic">Mavi Çizgi: Ajan A | Yeşil Kesikli Çizgi: Ajan B | Kırmızı Noktalı Çizgi: Referans Hedef</p>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-white border rounded border-success">
-                                    <small class="text-muted d-block">Ajan: Reuptake İnhibisyon Düzeyi</small>
-                                    <strong>{{ sonuclar.geri_alim }}</strong>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-white border rounded border-warning">
-                                    <small class="text-muted d-block">Ajan: Enzimatik Aktivite (MAO/COMT)</small>
-                                    <strong>{{ sonuclar.yikim }}</strong>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 bg-white border rounded border-danger">
-                                    <small class="text-muted d-block">Ajanın Sistematik Sapma Skoru (Fitness)</small>
-                                    <strong>{{ sonuclar.hata }}</strong>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center">
-                            <img src="data:image/png;base64,{{ sonuclar.grafik }}" class="img-fluid border rounded shadow-sm" alt="Simülasyon Grafiği">
                         </div>
                         {% endif %}
                     </div>

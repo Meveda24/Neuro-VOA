@@ -1,56 +1,91 @@
 import numpy as np
 from model import simulate_synapse
 
-def fitness_function(parametreler, hedef_konsantrasyon):
+# Fizyolojik Ön Ayarlar (Literature-based presets)
+PRESETS = {
+    "genel": {
+        "bounds": [(0, 50.0), (0, 1.0), (0, 1.0)],
+        "baseline": [10.0, 0.1, 0.05]
+    },
+    "noradrenalin_sican": {
+        "bounds": [(5.0, 30.0), (0.01, 0.3), (0.01, 0.2)],
+        "baseline": [15.0, 0.05, 0.05]
+    },
+    "serotonin_sican": {
+        "bounds": [(2.0, 15.0), (0.01, 0.2), (0.005, 0.1)],
+        "baseline": [8.0, 0.03, 0.02]
+    }
+}
+
+def fitness_function(parametreler, hedef_konsantrasyon, active_mask, baseline):
     """
-    Algoritmanın başarısını ölçen uygunluk fonksiyonu. 
-    Hedef konsantrasyon ile simülasyon sonucu arasındaki mutlak farkı (hatayı) hesaplar.
+    Uygunluk fonksiyonu. Sadece aktif parametreleri optimize eder, 
+    diğerlerini baseline değerinde sabit tutar.
     """
-    release, reuptake, deg = parametreler
+    # Gerçek parametre setini oluştur (active_mask'e göre)
+    final_params = []
+    for i in range(3):
+        if active_mask[i]:
+            final_params.append(parametreler[i])
+        else:
+            final_params.append(baseline[i])
+            
+    release, reuptake, deg = final_params
     
-    # Parametrelerin negatif olamayacağı biyolojik kısıtı (Constraint handling)
-    if release < 0 or reuptake < 0 or deg < 0:
+    # Negatif değer kontrolü (Algoritma dışına çıkarsa)
+    if any(p < 0 for p in final_params):
         return 9999.0 
         
-    # Mevcut parametrelerle simülasyonu çalıştır
     max_c = simulate_synapse(release, reuptake, deg, plot=False)
-    
-    # Hata değeri (Fitness value - minimize edilmesi hedeflenir)
     return abs(hedef_konsantrasyon - max_c)
 
-def basitlestirilmis_voa(hedef_konsantrasyon, populasyon_sayisi=30, iterasyon=100):
+def basitlestirilmis_voa(hedef_konsantrasyon, preset_key="genel", active_mask=[True, True, True], populasyon_sayisi=30, iterasyon=50):
     """
-    Basitleştirilmiş Girdap Optimizasyon Algoritması (VOA).
-    Sürüler halindeki parçacıkların girdap benzeri hareketlerle en iyi çözüme yaklaşmasını sağlar.
+    Kısıtlanmış ve Özelleştirilmiş VOA Algoritması.
+    active_mask: [Salınım, Geri Alım, Yıkım] -> Hangi parametrelerin optimize edileceği.
     """
-    # Başlangıç popülasyonunun rastgele oluşturulması (Sınırlı aralıklarda)
-    populasyon = np.random.rand(populasyon_sayisi, 3)
-    populasyon[:, 0] *= 20.0 # Salınım hızı üst sınırı
-    populasyon[:, 1] *= 0.5  # Geri alım hızı üst sınırı
-    populasyon[:, 2] *= 0.5  # Yıkım hızı üst sınırı
+    preset = PRESETS.get(preset_key, PRESETS["genel"])
+    bounds = preset["bounds"]
+    baseline = preset["baseline"]
     
+    # Başlangıç popülasyonu (Sadece aktif parametreler için rastgele değerler)
+    populasyon = np.zeros((populasyon_sayisi, 3))
+    for i in range(3):
+        if active_mask[i]:
+            low, high = bounds[i]
+            populasyon[:, i] = np.random.uniform(low, high, populasyon_sayisi)
+        else:
+            populasyon[:, i] = baseline[i]
+            
     en_iyi_cozum = None
     en_iyi_hata = float('inf')
     
-    # Optimizasyon döngüsü
     for i in range(iterasyon):
-        # Tüm bireylerin performansının değerlendirilmesi
-        hatalar = [fitness_function(birey, hedef_konsantrasyon) for birey in populasyon]
+        hatalar = [fitness_function(birey, hedef_konsantrasyon, active_mask, baseline) for birey in populasyon]
         
-        # En iyi bireyin seçilmesi (Girdap merkezi)
         mevcut_en_iyi_idx = np.argmin(hatalar)
         if hatalar[mevcut_en_iyi_idx] < en_iyi_hata:
             en_iyi_hata = hatalar[mevcut_en_iyi_idx]
             en_iyi_cozum = populasyon[mevcut_en_iyi_idx].copy()
             
-        # Girdap yarıçapının iterasyonla azalması (Exploitation artırımı)
         r = 1.0 - (i / iterasyon)
         
-        # Popülasyonun güncellenmesi
         for j in range(populasyon_sayisi):
             if j != mevcut_en_iyi_idx:
-                # Rastgele sapma ve merkeze yönelim (Vortex motion)
-                rastgele_sapma = np.random.randn(3) * r * 0.1 
-                populasyon[j] = populasyon[j] + rastgele_sapma + (en_iyi_cozum - populasyon[j]) * np.random.rand() * r
+                # Girdap hareketi: Sadece aktif parametreler üzerinde değişim yap
+                for k in range(3):
+                    if active_mask[k]:
+                        rastgele_sapma = np.random.randn() * r * (bounds[k][1] - bounds[k][0]) * 0.05
+                        yeni_deger = populasyon[j, k] + rastgele_sapma + (en_iyi_cozum[k] - populasyon[j, k]) * np.random.rand() * r
+                        # Sınır kontrolü (Clamping)
+                        populasyon[j, k] = np.clip(yeni_deger, bounds[k][0], bounds[k][1])
                 
-    return en_iyi_cozum, en_iyi_hata
+    # Final çözümü baseline ile birleştirerek döndür
+    final_sonuc = []
+    for k in range(3):
+        if active_mask[k]:
+            final_sonuc.append(en_iyi_cozum[k])
+        else:
+            final_sonuc.append(baseline[k])
+            
+    return final_sonuc, en_iyi_hata
