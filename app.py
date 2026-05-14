@@ -22,7 +22,7 @@ def plot_to_base64(release, reuptake, deg, hedef):
     plt.figure(figsize=(10, 5))
     plt.plot(t, C, label='Optimize Edilmiş Nörotransmitter Salınımı', color='#0d6efd', linewidth=2)
     plt.axhline(y=hedef, color='#dc3545', linestyle='--', label=f'Hedef Konsantrasyon ({hedef})')
-    plt.title('VOA ile Sinaptik İletim Optimizasyonu', fontsize=14)
+    plt.title('Ajan Parametrelerinin Referans İndekse Yakınsama Grafiği (In-Silico ODE Çözümü)', fontsize=14)
     plt.xlabel('Zaman (ms)')
     plt.ylabel('Konsantrasyon (C)')
     plt.legend()

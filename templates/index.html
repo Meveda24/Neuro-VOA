@@ -14,12 +14,16 @@
                         <h4 class="mb-0">Neuro-VOA: Sinaptik İletim Optimizasyonu</h4>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">Bu simülasyon, Girdap Optimizasyon Algoritması (Vortex Optimization Algorithm - VOA) kullanarak, hedeflenen nörotransmitter konsantrasyonunu sağlayacak en ideal salınım, geri alım ve yıkım parametrelerini otonom olarak hesaplar.</p>
+                        <div class="alert alert-info border-start border-info border-4" role="alert">
+                            <strong><i class="bi bi-info-circle"></i> Sistem Kapsamı ve Kısıtlılıklar (In-Silico Disclaimer):</strong><br>
+                            <small>Bu simülasyon, in-vivo (canlı) veya bütünsel (whole-brain) bir kesin değer ölçüm aracı <b>değildir</b>. Hücresel ağların kaotik yapısı gereği, tekil sinaps değerleri diagnostik bir sonuç ifade etmez. 
+                            <br><b>Amaç:</b> VOA algoritması kullanılarak, farmakolojik ajanların (nörotrofik faktörler, inhibitörler vb.) hedeflenen referans dengeye ulaşmadaki <b>matematiksel etkinliklerini kıyaslamak</b> ve in-silico ön testlerini yapmaktır.</small>
+                        </div>
                         
                         <form method="POST" class="mb-4">
                             <div class="row align-items-end">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Hedef Konsantrasyon Değeri (C)</label>
+                                    <label class="form-label fw-bold">Referans Denge İndeksi (Kıyaslama İçin Terapötik Hedef)</label>
                                     <input type="number" class="form-control" name="hedef" value="{{ sonuclar.hedef if sonuclar else 40 }}" step="1" required>
                                 </div>
                                 <div class="col-md-4">
@@ -34,25 +38,25 @@
                         <div class="row mb-4">
                             <div class="col-md-3">
                                 <div class="p-3 bg-white border rounded border-primary">
-                                    <small class="text-muted d-block">İdeal Salınım</small>
+                                    <small class="text-muted d-block">Ajan: Presinaptik Salınım Oranı</small>
                                     <strong>{{ sonuclar.salinim }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="p-3 bg-white border rounded border-success">
-                                    <small class="text-muted d-block">İdeal Geri Alım</small>
+                                    <small class="text-muted d-block">Ajan: Reuptake İnhibisyon Düzeyi</small>
                                     <strong>{{ sonuclar.geri_alim }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="p-3 bg-white border rounded border-warning">
-                                    <small class="text-muted d-block">İdeal Enzim Yıkımı</small>
+                                    <small class="text-muted d-block">Ajan: Enzimatik Aktivite (MAO/COMT)</small>
                                     <strong>{{ sonuclar.yikim }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="p-3 bg-white border rounded border-danger">
-                                    <small class="text-muted d-block">Hata Payı (Fitness)</small>
+                                    <small class="text-muted d-block">Ajanın Sistematik Sapma Skoru (Fitness)</small>
                                     <strong>{{ sonuclar.hata }}</strong>
                                 </div>
                             </div>
